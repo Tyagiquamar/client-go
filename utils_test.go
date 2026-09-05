@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"testing"
 )
-
 // Regression test: addFile must close the source file only after copying its
 // contents into the multipart writer.
 func TestAddFileCopiesContentBeforeClose(t *testing.T) {
@@ -29,7 +28,7 @@ func TestAddFileCopiesContentBeforeClose(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, "http://example.invalid", &body)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "http://example.invalid", &body)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +40,7 @@ func TestAddFileCopiesContentBeforeClose(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	if header.Filename != "upload.txt" {
 		t.Fatalf("unexpected filename: %q", header.Filename)
 	}
